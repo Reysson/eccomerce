@@ -2,6 +2,8 @@ package com.reysson.eccomerce;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -14,14 +16,19 @@ public class NewOrderMain {
         
         String value = "123,456,789";
         var record = new ProducerRecord("ECCOMERCE_NEW_ORDER",value,value);
-        
-        producer.send(record,(data, ex) ->{
-            if(ex != null){
+
+        Callback callback = (data, ex) -> {
+            if (ex != null) {
                 ex.printStackTrace();
                 return;
             }
-            System.out.println(data.topic() + ":::partition " + data.partition() + "/ offset " + data.offset() + "/ timestamp "+ data.timestamp());
-        }).get();
+            System.out.println(data.topic() + ":::partition " + data.partition() + "/ offset " + data.offset() + "/ timestamp " + data.timestamp());
+        };
+        var email = "Welcome! Processing your order";
+        var emailRecorded = new ProducerRecord<>("ECCOMERCE_SEND_EMAIL",email,email);
+
+        producer.send(record, callback).get();
+        producer.send(emailRecorded).get();
     }
 
     static Properties properties() {
