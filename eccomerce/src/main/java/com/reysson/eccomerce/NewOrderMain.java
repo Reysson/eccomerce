@@ -1,6 +1,7 @@
 package com.reysson.eccomerce;
 
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -13,9 +14,9 @@ public class NewOrderMain {
     
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         var producer = new KafkaProducer<String,String>(properties());
-        
-        String value = "123,456,789";
-        var record = new ProducerRecord("ECCOMERCE_NEW_ORDER",value,value);
+        String key = UUID.randomUUID().toString();
+        String value = key+",456,789";
+        var record = new ProducerRecord("ECCOMERCE_NEW_ORDER",key,value);
 
         Callback callback = (data, ex) -> {
             if (ex != null) {
